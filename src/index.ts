@@ -1,18 +1,10 @@
 import { IContextBot } from 'config/context-interface';
-import {
-  BOT_ADMIN_ID,
-  BOT_TOKEN,
-  SUPABASE_API_KEY,
-  SUPABASE_PROJECT_URL,
-} from 'config/env-config';
+import { BOT_ADMIN_ID, BOT_TOKEN } from 'config/env-config';
 import { initUserbot } from 'config/userbot';
 import { newTaskReceived } from 'services/stories-service';
 import { session, Telegraf } from 'telegraf';
 import { callbackQuery, message } from 'telegraf/filters';
 
-import { createClient } from '@supabase/supabase-js';
-
-export const supabase = createClient(SUPABASE_PROJECT_URL, SUPABASE_API_KEY);
 export const bot = new Telegraf<IContextBot>(BOT_TOKEN);
 const RESTART_COMMAND = 'restart';
 

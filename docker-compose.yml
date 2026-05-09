@@ -9,6 +9,8 @@ services:
       NODE_ENV: production
     volumes:
       - userbot-session:/app/userbot-session
+      # локальная SQLite при DATA_STORAGE=sqlite (совпадает с SQLITE_DATABASE_PATH по умолчанию)
+      - sqlite-data:/app/data
     # Первичная авторизация userbot (код/пароль в интерактиве): раскомментируйте,
     # выполните docker compose run --rm -it bot, затем закомментируйте и запускайте как сервис.
     # stdin_open: true
@@ -16,3 +18,4 @@ services:
 
 volumes:
   userbot-session:
+  sqlite-data:

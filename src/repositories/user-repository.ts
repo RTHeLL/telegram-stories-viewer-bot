@@ -1,17 +1,15 @@
 import { notifyAdmin } from 'controllers/send-message';
-import { supabase } from 'index';
+import { insertUserIfAbsent } from 'storage/user-persistence';
 import { User } from 'telegraf/typings/core/types/typegram';
 
 export const saveUser = async (user: User) => {
   try {
-    const { data } = await supabase.from('users').select('*').eq('id', user.id);
-    // save if not exist in db
-    if (!data?.length) {
+    const inserted = await insertUserIfAbsent(user);
+    if (inserted) {
       notifyAdmin({
         status: 'info',
         baseInfo: `👤 New user added to DB`,
       });
-      await supabase.from('users').insert([user]);
     }
   } catch (error) {
     notifyAdmin({
