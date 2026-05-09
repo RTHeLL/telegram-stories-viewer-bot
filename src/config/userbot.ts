@@ -39,7 +39,7 @@ async function initClient() {
     onError: (err) => console.log('error', err),
   });
   console.log('You should now be connected.');
-  console.log(client.session.save()); // Save the session to avoid logging in again
+  // StoreSession пишет сессию в каталог userbot-session (после start не нужно save() из StringSession).
   await client.sendMessage('me', { message: 'Hi!' });
   return client;
 }

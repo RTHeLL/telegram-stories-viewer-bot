@@ -8,6 +8,11 @@ import { callbackQuery, message } from 'telegraf/filters';
 export const bot = new Telegraf<IContextBot>(BOT_TOKEN);
 const RESTART_COMMAND = 'restart';
 
+/** Только вход userbot (Telegram код/пароль) и завершение — без Telegram Bot API long polling */
+const USERBOT_LOGIN_ONLY =
+  process.env.USERBOT_LOGIN_ONLY === 'true' ||
+  process.env.USERBOT_LOGIN_ONLY === '1';
+
 bot.use(session());
 
 bot.catch((error) => {
@@ -113,17 +118,31 @@ bot.on(callbackQuery('data'), async (ctx) => {
   }
 });
 
-bot.launch({ dropPendingUpdates: true });
-initUserbot();
-
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
-
 process.on('uncaughtException', (err) => {
   console.error('Unhandled Exception:', err);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+async function bootstrap() {
+  if (USERBOT_LOGIN_ONLY) {
+    await initUserbot();
+    console.log(
+      'Сессия userbot сохранена в томе userbot-session. Дальше: docker compose up -d'
+    );
+    process.exit(0);
+  }
+
+  bot.launch({ dropPendingUpdates: true });
+  void initUserbot();
+
+  process.once('SIGINT', () => bot.stop('SIGINT'));
+  process.once('SIGTERM', () => bot.stop('SIGTERM'));
+}
+
+void bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
 });

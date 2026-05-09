@@ -1,7 +1,7 @@
 # Первичный вход userbot в Telegram (SMS-код и при необходимости пароль 2FA).
 # Том userbot-session тот же, что у обычного сервиса — сессия сохранится.
 #
-# С хоста (один раз):
+# С хоста (один раз). USERBOT_LOGIN_ONLY не запускает Telegraf Long Polling — процесс сам завершится.
 #   docker compose -f docker-compose.yml -f docker-compose.login.yml run --rm bot
 #
 # Затем обычный фоновый запуск:
@@ -11,3 +11,5 @@ services:
   bot:
     stdin_open: true
     tty: true
+    environment:
+      USERBOT_LOGIN_ONLY: 'true'
