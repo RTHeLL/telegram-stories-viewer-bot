@@ -1,6 +1,6 @@
 import { IContextBot } from 'config/context-interface';
 import { BOT_ADMIN_ID, BOT_TOKEN } from 'config/env-config';
-import { initUserbot } from 'config/userbot';
+import { initUserbot, runUserbotLoginAndExit } from 'config/userbot';
 import { newTaskReceived } from 'services/stories-service';
 import { session, Telegraf } from 'telegraf';
 import { callbackQuery, message } from 'telegraf/filters';
@@ -128,10 +128,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 async function bootstrap() {
   if (USERBOT_LOGIN_ONLY) {
-    await initUserbot();
-    console.log(
-      'Сессия userbot сохранена в томе userbot-session. Дальше: docker compose up -d'
-    );
+    await runUserbotLoginAndExit();
     process.exit(0);
   }
 
