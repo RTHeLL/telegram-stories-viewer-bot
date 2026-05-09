@@ -12,7 +12,8 @@
 		"lint:fix": "eslint src --fix",
 		"process:stop": "npx pm2 stop ecosystem.config.js && npx pm2 delete ecosystem.config.js",
 		"process:start": "yarn build && npx pm2 start ecosystem.config.js",
-		"deploy": "yarn process:stop && yarn process:start"
+		"deploy": "yarn process:stop && yarn process:start",
+		"docker:login": "docker compose -f docker-compose.yml -f docker-compose.login.yml run --rm bot"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.105.4",

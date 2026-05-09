@@ -1,0 +1,13 @@
+# Первичный вход userbot в Telegram (SMS-код и при необходимости пароль 2FA).
+# Том userbot-session тот же, что у обычного сервиса — сессия сохранится.
+#
+# С хоста (один раз):
+#   docker compose -f docker-compose.yml -f docker-compose.login.yml run --rm bot
+#
+# Затем обычный фоновый запуск:
+#   docker compose up -d
+#
+services:
+  bot:
+    stdin_open: true
+    tty: true

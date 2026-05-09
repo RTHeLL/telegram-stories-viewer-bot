@@ -11,10 +11,8 @@ services:
       - userbot-session:/app/userbot-session
       # локальная SQLite при DATA_STORAGE=sqlite (совпадает с SQLITE_DATABASE_PATH по умолчанию)
       - sqlite-data:/app/data
-    # Первичная авторизация userbot (код/пароль в интерактиве): раскомментируйте,
-    # выполните docker compose run --rm -it bot, затем закомментируйте и запускайте как сервис.
-    # stdin_open: true
-    # tty: true
+    # Первый вход userbot (код Telegram): см. docker-compose.login.yml
+    #   docker compose -f docker-compose.yml -f docker-compose.login.yml run --rm bot
 
 volumes:
   userbot-session:
