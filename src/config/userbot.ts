@@ -33,8 +33,25 @@ export class Userbot {
   }
 }
 
-/** Подключение MTProto после ввода кода (общая часть входа и обычного запуска). */
-export async function createAndStartUserbotClient(): Promise<TelegramClient> {
+function canInteractiveLoginViaStdin(): boolean {
+  return (
+    typeof process.stdin.isTTY === 'boolean' &&
+    process.stdin.isTTY &&
+    typeof process.stdout.isTTY === 'boolean' &&
+    process.stdout.isTTY
+  );
+}
+
+/**
+ * MTProto вход.
+ * Без интерактива (docker up -d) — только уже сохранённая сессия, иначе зависание на input.text без TTY.
+ * Интерактив вход — см. docker-compose.login.yml или runUserbotLoginAndExit(..., явно включённое).
+ */
+export async function createAndStartUserbotClient(options?: {
+  allowInteractiveLogin?: boolean;
+}): Promise<TelegramClient> {
+  const allowInteractive = options?.allowInteractiveLogin ?? true;
+
   const storeSession = new StoreSession('userbot-session');
 
   const client = new TelegramClient(
@@ -45,6 +62,17 @@ export async function createAndStartUserbotClient(): Promise<TelegramClient> {
       connectionRetries: 5,
     }
   );
+
+  if (!allowInteractive) {
+    await client.connect();
+    if (await client.checkAuthorization()) {
+      return client;
+    }
+    throw new Error(
+      'Userbot не авторизован или сессия не найдена в userbot-session. ' +
+        'Выполните одноразовый вход: docker compose -f docker-compose.yml -f docker-compose.login.yml run --rm bot'
+    );
+  }
 
   await client.start({
     phoneNumber: USERBOT_PHONE_NUMBER,
@@ -57,7 +85,9 @@ export async function createAndStartUserbotClient(): Promise<TelegramClient> {
 }
 
 async function initClient() {
-  const client = await createAndStartUserbotClient();
+  const client = await createAndStartUserbotClient({
+    allowInteractiveLogin: canInteractiveLoginViaStdin(),
+  });
   console.log('You should now be connected.');
   await client.sendMessage('me', { message: 'Hi!' });
   return client;
@@ -80,7 +110,7 @@ export async function runUserbotLoginAndExit(): Promise<void> {
   process.once('SIGINT', () => void gracefulStop(130));
   process.once('SIGTERM', () => void gracefulStop(143));
 
-  client = await createAndStartUserbotClient();
+  client = await createAndStartUserbotClient({ allowInteractiveLogin: true });
 
   try {
     console.log('You should now be connected.');

@@ -132,9 +132,11 @@ async function bootstrap() {
     process.exit(0);
   }
 
-  await initUserbot();
-
   bot.launch({ dropPendingUpdates: true });
+
+  void initUserbot().catch((err) => {
+    console.error('Userbot подключился с ошибкой (бот при этом уже слушает обновления):', err);
+  });
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));
