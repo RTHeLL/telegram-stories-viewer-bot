@@ -1,6 +1,8 @@
 import { createEffect } from 'effector';
 import { timeout } from 'lib';
+import { snapshotPayloadFromPeerStories } from 'lib/story-snapshot';
 import { UserInfo } from 'services/stories-service';
+import { insertStoryHistory } from 'storage/monitoring-persistence';
 import { Api } from 'telegram';
 
 import { sendActiveStories } from './send-active-stories';
@@ -38,6 +40,26 @@ export const sendStoriesFx = createEffect(
 
     if (particularStory) {
       await sendParticularStory({ story: particularStory, task });
+    }
+
+    if (
+      task.persistHistory !== false &&
+      !task.nextStoriesIds &&
+      task.linkType === 'username' &&
+      !paginatedStories &&
+      !particularStory &&
+      (activeStories.length > 0 || pinnedStories.length > 0)
+    ) {
+      try {
+        await insertStoryHistory({
+          owner_chat_id: task.chatId,
+          target_link: task.link,
+          source: 'manual',
+          payload: snapshotPayloadFromPeerStories(activeStories, pinnedStories),
+        });
+      } catch (error) {
+        console.error('story_history (manual):', error);
+      }
     }
   }
 );

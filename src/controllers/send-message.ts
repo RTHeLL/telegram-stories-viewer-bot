@@ -14,6 +14,7 @@ export async function notifyAdmin({
   errorInfo?: { cause: unknown };
   baseInfo?: string;
 }) {
+  if (task?.skipAdminNotify) return;
   if (task?.chatId === BOT_ADMIN_ID.toString()) return;
   const userInfo = JSON.stringify(
     { ...(task?.user ?? {}), username: '@' + task?.user?.username },

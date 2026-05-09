@@ -1,6 +1,11 @@
+import {
+  registerMonitoringHandlers,
+  tryHandleMonitorLinkInput,
+} from 'bot/monitoring-handlers';
 import { IContextBot } from 'config/context-interface';
 import { BOT_ADMIN_ID, BOT_TOKEN } from 'config/env-config';
 import { initUserbot, runUserbotLoginAndExit } from 'config/userbot';
+import { startMonitoringScheduler } from 'services/monitoring-scheduler';
 import { newTaskReceived } from 'services/stories-service';
 import { session, Telegraf } from 'telegraf';
 import { callbackQuery, message } from 'telegraf/filters';
@@ -14,6 +19,7 @@ const USERBOT_LOGIN_ONLY =
   process.env.USERBOT_LOGIN_ONLY === '1';
 
 bot.use(session());
+registerMonitoringHandlers(bot);
 
 bot.catch((error) => {
   console.error(error, 'INDEX.TS');
@@ -30,7 +36,8 @@ bot.start(async (ctx) => {
     '🔗 Please send 1 of the next options:\n\n' +
       "username (with '@' symbol):\n@chupapee\n\n" +
       "or phone number (with '+' symbol):\n+71234567890\n\n" +
-      'or the direct link to story:\nhttps://t.me/durov/s/1',
+      'or the direct link to story:\nhttps://t.me/durov/s/1\n\n' +
+      '📎 Фоновый мониторинг и история: /monitor',
     extraOptions
   );
 });
@@ -38,6 +45,11 @@ bot.start(async (ctx) => {
 bot.on(message('text'), async (ctx) => {
   const handleMessage = async () => {
     const text = ctx.message.text;
+
+    const monitorHandled = await tryHandleMonitorLinkInput(ctx, text);
+    if (monitorHandled) {
+      return;
+    }
 
     // username
     if (text.startsWith('@') || text.startsWith('+')) {
@@ -134,15 +146,20 @@ async function bootstrap() {
 
   bot.launch({ dropPendingUpdates: true });
 
-  void initUserbot().catch((err) => {
-    console.error('Userbot подключился с ошибкой (бот при этом уже слушает обновления):', err);
+  startMonitoringScheduler();
+
+  void initUserbot().catch((error) => {
+    console.error(
+      'Userbot подключился с ошибкой (бот при этом уже слушает обновления):',
+      error
+    );
   });
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));
 }
 
-void bootstrap().catch((err) => {
-  console.error(err);
+void bootstrap().catch((error) => {
+  console.error(error);
   process.exit(1);
 });

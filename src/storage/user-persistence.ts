@@ -1,33 +1,15 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import {
   DATA_STORAGE,
-  SQLITE_DATABASE_PATH,
   SUPABASE_API_KEY,
   SUPABASE_PROJECT_URL,
 } from 'config/env-config';
-import Database from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
 import { User } from 'telegraf/typings/core/types/typegram';
 
-let sqliteDb: Database.Database | null = null;
-let supabaseClient: SupabaseClient | null = null;
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-function getSqliteDb(): Database.Database {
-  if (sqliteDb) return sqliteDb;
-  const filePath = path.resolve(process.cwd(), SQLITE_DATABASE_PATH);
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  sqliteDb = new Database(filePath);
-  sqliteDb.pragma('journal_mode = WAL');
-  sqliteDb.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY NOT NULL,
-      payload TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    )
-  `);
-  return sqliteDb;
-}
+import { getSharedSqlite } from './sqlite-db';
+
+let supabaseClient: SupabaseClient | null = null;
 
 function getSupabase(): SupabaseClient {
   if (!supabaseClient) {
@@ -41,7 +23,7 @@ function getSupabase(): SupabaseClient {
  */
 export async function insertUserIfAbsent(user: User): Promise<boolean> {
   if (DATA_STORAGE === 'sqlite') {
-    const db = getSqliteDb();
+    const db = getSharedSqlite();
     const exists = db
       .prepare('SELECT 1 AS ok FROM users WHERE id = ?')
       .get(user.id) as { ok: number } | undefined;

@@ -21,6 +21,10 @@ export interface UserInfo {
   user?: User;
   tempMessages?: number[];
   initTime: number;
+  /** Не слать уведомления админу (фоновый мониторинг) */
+  skipAdminNotify?: boolean;
+  /** Сохранить снимок в story_history после отправки (по умолчанию true для ручных запросов) */
+  persistHistory?: boolean;
 }
 export const $currentTask = createStore<UserInfo | null>(null);
 export const $tasksQueue = createStore<UserInfo[]>([]);

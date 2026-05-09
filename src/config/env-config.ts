@@ -29,9 +29,7 @@ const parseDataStorage = (): DataStorageDriver => {
   }
   const normalized = raw.toLowerCase();
   if (normalized === 'sqlite' || normalized === 'supabase') return normalized;
-  throw new Error(
-    `DATA_STORAGE must be "sqlite" or "supabase", got: "${raw}"`
-  );
+  throw new Error(`DATA_STORAGE must be "sqlite" or "supabase", got: "${raw}"`);
 };
 
 /** Runtime mode */
@@ -62,6 +60,23 @@ export const SQLITE_DATABASE_PATH =
   DATA_STORAGE === 'sqlite'
     ? getEnvVarOptional('SQLITE_DATABASE_PATH', 'data/users.db')
     : '';
+
+const parseMonitorIntervalMs = (): number => {
+  const raw = process.env.MONITOR_INTERVAL_MS ?? parsed?.MONITOR_INTERVAL_MS;
+  if (raw === undefined || String(raw).trim() === '') {
+    return 3_600_000;
+  }
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 60_000) {
+    throw new Error(
+      'MONITOR_INTERVAL_MS must be a finite number >= 60000 (1 minute)'
+    );
+  }
+  return Math.floor(n);
+};
+
+/** Интервал фонового мониторинга подписок (мс). По умолчанию 1 час. */
+export const MONITOR_INTERVAL_MS = parseMonitorIntervalMs();
 
 // supabase (обязательны только при DATA_STORAGE=supabase)
 export const SUPABASE_PROJECT_URL =

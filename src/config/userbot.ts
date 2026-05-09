@@ -24,9 +24,9 @@ export class Userbot {
           Userbot.connecting = undefined;
           return client;
         })
-        .catch((err) => {
+        .catch((error) => {
           Userbot.connecting = undefined;
-          throw err;
+          throw error;
         });
     }
     return Userbot.connecting;

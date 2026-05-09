@@ -7,6 +7,8 @@ export interface UserSession extends User {
 
 interface SceneSession extends Scenes.SceneSession {
   usersList: UserSession[] | undefined;
+  /** Ожидаем @username / +телефон после «Добавить» в мониторинге */
+  awaitingMonitorTargetLink?: boolean;
 }
 
 export interface IContextBot extends Context {
