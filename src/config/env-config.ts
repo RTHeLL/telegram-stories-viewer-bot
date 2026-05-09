@@ -3,10 +3,13 @@ import { config } from 'dotenv';
 const { parsed } = config();
 
 export const getEnvVar = (key: string) => {
-  if (process.env[key] === undefined || parsed?.[key] === undefined) {
+  // После config() ключи из .env попадают в process.env. Переменные только из
+  // окружения (Docker/K8s) могут быть в process.env без ключа в parsed — не падать из‑за parsed.
+  const value = process.env[key] ?? parsed?.[key];
+  if (value === undefined || value === '') {
     throw new Error(`Env variable ${key} is required`);
   }
-  return process.env[key] || parsed[key] || '';
+  return value;
 };
 
 const getEnvVarOptional = (key: string, defaultValue: string) => {
