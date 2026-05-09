@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+dist
+.yarn
+.env
+.env.*
+*.md
+.cursor
+terminals
+coverage
+*.log
+userbot-session

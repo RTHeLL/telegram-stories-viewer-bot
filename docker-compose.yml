@@ -1,0 +1,18 @@
+services:
+  bot:
+    build: .
+    image: telegram-stories-viewer-bot:local
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+    volumes:
+      - userbot-session:/app/userbot-session
+    # Первичная авторизация userbot (код/пароль в интерактиве): раскомментируйте,
+    # выполните docker compose run --rm -it bot, затем закомментируйте и запускайте как сервис.
+    # stdin_open: true
+    # tty: true
+
+volumes:
+  userbot-session:
