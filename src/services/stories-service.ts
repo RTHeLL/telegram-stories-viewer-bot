@@ -7,8 +7,14 @@ import { bot } from 'index';
 import { getRandomArrayItem } from 'lib';
 import { and, not, or } from 'patronum';
 import { saveUser } from 'repositories/user-repository';
+import {
+  cleanUpTempMessagesFired,
+  tempMessageSent,
+} from 'services/stories-events';
 import { User } from 'telegraf/typings/core/types/typegram';
 import { Api } from 'telegram';
+
+export { cleanUpTempMessagesFired, tempMessageSent };
 
 // stores
 export interface UserInfo {
@@ -37,10 +43,8 @@ const $taskTimeout = createStore(isDevEnv ? 20_000 : 240_000);
 export const newTaskReceived = createEvent<UserInfo>();
 const taskInitiated = createEvent();
 const taskStarted = createEvent();
-export const tempMessageSent = createEvent<number>();
 export const taskDone = createEvent();
 const checkTasks = createEvent();
-export const cleanUpTempMessagesFired = createEvent();
 
 // effects
 const timeoutList = isDevEnv

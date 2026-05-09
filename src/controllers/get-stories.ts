@@ -2,7 +2,8 @@ import { Userbot } from 'config/userbot';
 import { createEffect } from 'effector';
 import { bot } from 'index';
 import { fetchPeerStoriesAll } from 'lib/fetch-peer-stories';
-import { tempMessageSent, UserInfo } from 'services/stories-service';
+import { tempMessageSent } from 'services/stories-events';
+import type { UserInfo } from 'services/stories-service';
 import { Api } from 'telegram';
 
 import { notifyAdmin } from './send-message';

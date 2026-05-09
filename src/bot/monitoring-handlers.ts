@@ -71,6 +71,14 @@ function targetRowKeyboard(
 export function registerMonitoringHandlers(app: Telegraf<IContextBot>): void {
   initMonitoringSchema();
 
+  app.use((ctx, next) => {
+    const c = ctx as IContextBot;
+    if (!c.session) {
+      c.session = {} as IContextBot['session'];
+    }
+    return next();
+  });
+
   app.command(['monitor', 'settings', 'mon'], async (ctx) => {
     if (ctx.chat?.type !== 'private') {
       await ctx.reply('Мониторинг доступен только в личном чате.');
@@ -447,6 +455,7 @@ export async function tryHandleMonitorLinkInput(
   text: string
 ): Promise<boolean> {
   if (!ctx.from || ctx.chat?.type !== 'private') return false;
+  if (!ctx.session) return false;
 
   const pending = Boolean(ctx.session.awaitingMonitorTargetLink);
   if (!pending) return false;

@@ -4,7 +4,7 @@ import { chunkMediafiles } from 'lib';
 import {
   cleanUpTempMessagesFired,
   tempMessageSent,
-} from 'services/stories-service';
+} from 'services/stories-events';
 import { Markup } from 'telegraf';
 import { Api } from 'telegram';
 

@@ -2,7 +2,7 @@ import { bot } from 'index';
 import {
   cleanUpTempMessagesFired,
   tempMessageSent,
-} from 'services/stories-service';
+} from 'services/stories-events';
 import { Api } from 'telegram';
 
 import { downloadStories, mapStories } from './download-stories';
