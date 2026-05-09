@@ -95,6 +95,9 @@ export const sendWaitMessageFx = createEffect(
     queueLength,
     newTask,
   }: SendWaitMessageFxArgs) => {
+    if (newTask.chatId === String(BOT_ADMIN_ID)) {
+      return;
+    }
     if (multipleRequests) {
       await bot.telegram.sendMessage(
         newTask.chatId,
