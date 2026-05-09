@@ -132,8 +132,9 @@ async function bootstrap() {
     process.exit(0);
   }
 
+  await initUserbot();
+
   bot.launch({ dropPendingUpdates: true });
-  void initUserbot();
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));

@@ -9,14 +9,27 @@ import {
 } from './env-config';
 
 export class Userbot {
-  private static client: TelegramClient;
+  private static client: TelegramClient | undefined;
+  /** Один общий промис входа MTProto — без этого два параллельных вызова открывают второй канал авторизации («код ещё раз»). */
+  private static connecting: Promise<TelegramClient> | undefined;
 
-  public static async getInstance() {
-    if (!Userbot.client) {
-      // FIXME: RACE CONDITION ISSUE
-      Userbot.client = await initClient();
+  public static async getInstance(): Promise<TelegramClient> {
+    if (Userbot.client) {
+      return Userbot.client;
     }
-    return Userbot.client;
+    if (!Userbot.connecting) {
+      Userbot.connecting = initClient()
+        .then((client) => {
+          Userbot.client = client;
+          Userbot.connecting = undefined;
+          return client;
+        })
+        .catch((err) => {
+          Userbot.connecting = undefined;
+          throw err;
+        });
+    }
+    return Userbot.connecting;
   }
 }
 
